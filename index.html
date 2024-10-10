@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Curta e mini filmes 😝</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Link para o CSS externo -->
+</head>
+<body>
+    <header>
+        <h1>Curtas E mini FIlmes 😍</h1>
+        <p>Clique em + para explorar as playlists e aproveite os curtas com amor! ❤️</p>
+    </header>
+    
+    <section>
+        <h2>O que é um curta? 🎬</h2>
+        <button class="toggle-btn" onclick="toggleExplanation(event)">➕</button>
+        <div class="explicacao">
+            <p>🎬 Curta-metragem ou, simplesmente, curta é um filme de pequena duração 🎥, podendo apresentar-se como uma produção cinematográfica de cariz estético 🌟, recreativo 🎉, informativo 📚, didático 📖 ou publicitário 📢.</p>
+            <p>O termo inglês equivalente a curta-metragem (short film) começou a ser utilizado nos Estados Unidos 🇺🇸 na década de 1910, quando a duração de boa parte dos filmes começou a aumentar ⏳. A princípio, o formato de curta-metragem foi mais utilizado em filmes de animação 🎨. Ainda hoje há muitos filmes com ação ao vivo (live-action) e de animação produzidos em curta-metragem 🎞️, havendo inclusive um prêmio Oscar 🏆 para cada tipo. A metragem curta é também adotada em documentários 📽️, filmes de estudantes 👩‍🎓 e filmes de pesquisa experimental 🔍. No Brasil 🇧🇷, o formato é bastante difundido e está em expansão desde os anos 1970 📅.</p>
+        </div>
+    </section>
+    
+    <div class="categorias">
+        <div class="categoria" id="romance">
+            <h2>Romance 💖</h2>
+            <div class="video-container" id="video-container-romance"></div>
+            <button onclick="loadMoreVideos('romance'); createParticles(event)">Carregar mais vídeos 📽️</button>
+        </div>
+
+        <div class="categoria" id="emocao">
+            <h2>Emoção 😢</h2>
+            <div class="video-container" id="video-container-emocao"></div>
+            <button onclick="loadMoreVideos('emocao'); createParticles(event)">Carregar mais vídeos 📽️</button>
+        </div>
+
+        <div class="categoria" id="fantasia">
+            <h2>Fantasia 🌈</h2>
+            <div class="video-container" id="video-container-fantasia"></div>
+            <button onclick="loadMoreVideos('fantasia'); createParticles(event)">Carregar mais vídeos 📽️</button>
+        </div>
+
+        <div class="categoria" id="ultimate_recaps">
+            <h2>Ultimate Recaps ⚡</h2>
+            <div class="video-container" id="video-container-ultimate_recaps"></div>
+            <button onclick="loadMoreVideos('ultimate_recaps'); createParticles(event)">Carregar mais vídeos 📽️</button>
+        </div>
+
+        <div class="categoria" id="terror">
+            <h2>Terror 👻</h2>
+            <div class="video-container" id="video-container-terror"></div>
+            <button onclick="loadMoreVideos('terror'); createParticles(event)">Carregar mais vídeos 📽️</button>
+        </div>
+    </div>
+    
+    <section>
+      <h2> ♡ APROVEITE OS CURTAS ♡ 🎉</h2>
+    </section>
+    
+    <script>
+        const apiKey = "AIzaSyDRR_FQKmVtSp3WQZ4qICQaBxT2_96KiSU";
+        const playlists = {
+            romance: "PLhj3v7Mjd_ZnGaSR6y0YmaLIE_Fr1Detm",
+            emocao: "PLhj3v7Mjd_ZlP4qX_bOf_xbIghfALI2ut",
+            fantasia: "PLhj3v7Mjd_ZndHSYyBd8-EhI912hcLE7r",
+            ultimate_recaps: "PLHP1QHQet4lzCtZdz3VQzdeH17aqQyIpz",
+            terror: "PL6TdKHdCGHMRBTNEcUuavTaxZSd4MgGXm"
+        };
+
+        // Objeto para armazenar vídeos carregados por categoria
+        const loadedVideos = {
+            romance: [],
+            emocao: [],
+            fantasia: [],
+            ultimate_recaps: [],
+            terror: []
+        };
+
+        // Objeto para armazenar o token da próxima página por categoria
+        const nextPageToken = {
+            romance: "",
+            emocao: "",
+            fantasia: "",
+            ultimate_recaps: "",
+            terror: ""
+        };
+
+        // Número de vídeos a carregar por vez
+        const videosToLoad = 4;
+
+        function loadVideos(playlistId, category, pageToken = "") {
+            const url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=${videosToLoad}&playlistId=${playlistId}&key=${apiKey}${pageToken ? `&pageToken=${pageToken}` : ''}`;
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    nextPageToken[category] = data.nextPageToken || ""; // Armazenar o token da próxima página
+                    data.items.forEach(item => {
+                        loadedVideos[category].push(item.snippet.resourceId.videoId); // Adicionar o vídeo carregado
+                    });
+                    renderVideos(loadedVideos[category], category);
+                })
+                .catch(error => console.error("Erro ao carregar vídeos:", error));
+        }
+
+        function renderVideos(videoIds, category) {
+            const container = document.getElementById(`video-container-${category}`);
+            container.innerHTML = ''; // Limpa o container antes de adicionar novos vídeos
+            videoIds.forEach(videoId => {
+                const iframe = document.createElement('iframe');
+                iframe.src = `https://www.youtube.com/embed/${videoId}?enablejsapi=1`; // Adiciona "?enablejsapi=1" para ativar a API do YouTube
+                iframe.width = '300';
+                iframe.height = '169';
+                iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+                iframe.setAttribute('allowfullscreen', '');
+                iframe.setAttribute('class', 'video');
+                container.appendChild(iframe);
+            });
+        }
+
+        function loadMoreVideos(category) {
+            loadVideos(playlists[category], category, nextPageToken[category]);
+        }
+
+        // Função para criar partículas ao clicar
+        function createParticles(event) {
+            const button = event.target;
+            const numParticles = 20;
+            for (let i = 0; i < numParticles; i++) {
+                const particle = document.createElement('span');
+                particle.classList.add('particle');
+                button.appendChild(particle);
+
+                // Definindo a posição e o movimento das partículas
+                const size = Math.random() * 5 + 2 + 'px'; // Tamanho aleatório
+                particle.style.width = size;
+                particle.style.height = size;
+
+                const x = (Math.random() - 0.5) * 100; // Movimenta horizontalmente
+                const y = (Math.random() - 0.5) * 100; // Movimenta verticalmente
+                particle.style.transform = `translate(${x}px, ${y}px)`;
+
+                // Remove as partículas após a animação
+                setTimeout(() => {
+                    particle.remove();
+                }, 1000);
+            }
+        }
+
+        // Função para mostrar/ocultar explicação
+function toggleExplanation(event) {
+    const explicacao = document.querySelector('.explicacao');
+
+    if (explicacao.classList.contains('show')) {
+        // Se já estiver visível, remova a classe para iniciar a animação de desvanecimento
+        explicacao.classList.remove('show');
+
+        // Espera a animação de desvanecimento terminar antes de ocultar
+        setTimeout(() => {
+            explicacao.style.display = 'none'; // Define como none após a animação
+        }, 800); // Tempo da animação
+    } else {
+        explicacao.style.display = 'block'; // Muda para block antes de adicionar a classe
+        setTimeout(() => {
+            explicacao.classList.add('show'); // Adiciona a classe após mudar para block
+        }, 10); // Um pequeno atraso para permitir a transição
+    }
+    
+    createParticles(event);
+}
+
+        // Carrega os vídeos inicialmente ao entrar na página
+        window.onload = function() {
+            for (const category in playlists) {
+                loadVideos(playlists[category], category);
+            }
+        };
+    </script>
+</body>
+</html>
+
